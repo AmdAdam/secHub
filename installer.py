@@ -26,7 +26,7 @@ def main():
 			file.write(content)
 			file.close()
 			
-			os.system("chmod +x /usr/bin/sechub")
+			os.system("chmod +x /usr/bin/secHub")
 
 			print "\n\n[+] Installation finished, type 'sechub' to use program!"
 		else:

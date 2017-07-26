@@ -20,6 +20,11 @@ Josh
 												       
 '''
 
+'''
+	Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ 	Everyone is permitted to copy and distribute verbatim copies
+  	of this license document, but changing it is not allowed.
+'''
 ##Libraries and Modules##
 ##---------------------##
 
@@ -36,6 +41,16 @@ import time
 import hashlib
 import smtplib
 import threading
+
+__author__ = "Josh"
+__version__ = "1.05"
+__license__ = "GNU GENERAL PUBLIC LICENSE"
+
+DATE = "July 26, 2017"
+NAME = "secHub"
+
+GIT = "https://github.com/joshDelta/secHub.git"
+WEBSITE_PARTNER = "http://unrealsecurity.net"
 
 def secHub():
 	cprint("""
@@ -333,19 +348,71 @@ def adminPanelFinder():
 		else:
 			cprint("\t[+] Success => " + req_link, 'green')
 
+	for x in range(1):
+
+		waf = 0
+		WAF_REQ_LINK = "http://"+link
+		WAF_REQ = Request(WAF_REQ_LINK)
+		f = urlopen(WAF_REQ_LINK)
+		waf_response = f.read()
+			
+		try:
+			if "cloudfare" in waf_response:
+				print colored("\t[+]", "green", attrs=['bold']) + "Cloud_Flare .. [" + colored("Detected", "green", attrs=['bold']) + "]"
+				waf = True
+				waf += 1
+
+			else:
+				print colored("\t[-]", "green", attrs=['bold']) + "Cloud_Flare .. [" + colored("None", "red", attrs=['bold']) + "]"
+				waf = False
+				waf -= 1
+
+			if "Just a moment..." in waf_response or "wait" in waf_response or "Please" in waf_response or "please" in waf_response:
+				print colored("\t[+]", "green", attrs=['bold']) + "Bot_Protection .. [" + colored("Detected", "green", attrs=['bold']) + "]"
+				waf = True
+				waf += 1
+
+			else:
+				print colored("\t[-]", "green", attrs=['bold']) + "Bot_Protection .. [" + colored("None", "red", attrs=['bold']) + "]"
+				waf -= 1
+				waf = False
+
+		except KeyboardInterrupt:
+			cprint("\n\t[!] User Aborted Scan! ", 'red')
+			sys.exit(0)
+
+		finally:
+			f.close() 
+
+				
 def sqlScanner():
 
 	global source
 	
-	sql_errors = [
-			"error in your SQL syntax : SQL syntax error",
-			"Query failed : Query failed",
-			"supplied argument is not a valid MySQL result resource in Bad argument",
-			"Microsoft JET Database Engine error 80040e14 : JET DBE error",
-			"Error:unknown Unknown error",
-			"Fatal error : Fatal error",
-			"mysql_fetch : MySQL fetch",
-			"Syntax error : Syntax error"
+
+	sql_errors = {
+		"error in your SQL syntax": 'SQL syntax error',
+		"Query failed": 'Query failed',
+		"supplied argument is not a valid MySQL result resource in": 'Bad argument',
+		"Microsoft JET Database Engine error '80040e14'": 'JET DBE error',
+		"Error:unknown": 'Unknown error',
+		"Fatal error": 'Fatal error',
+		"mysql_fetch": 'MySQL fetch',
+		"Syntax error": 'Syntax error'
+	}
+
+
+
+
+	sql_errors_list = [
+		"error in your SQL syntax : SQL syntax error",
+		"Query failed : Query failed",
+		"supplied argument is not a valid MySQL result resource in Bad argument",
+		"Microsoft JET Database Engine error 80040e14 : JET DBE error",
+		"Error:unknown Unknown error",
+		"Fatal error : Fatal error",
+		"mysql_fetch : MySQL fetch",
+		"Syntax error : Syntax error"
 	]
 
 	os.system('clear')
@@ -376,39 +443,40 @@ def sqlScanner():
 	for error in sql_errors:
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[0] + "'", 'yellow')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[0] + "'", 'yellow')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[1] + "'", 'red')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[1] + "'", 'red')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[2] + "'", 'red')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[2] + "'", 'red')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[3] + "'", 'blue')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[3] + "'", 'blue')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[4] + "'", 'blue')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[4] + "'", 'blue')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[5] + "'", 'green')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[5] + "'", 'green')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[6] + "'", 'green')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[6] + "'", 'green')
 
 		time.sleep(1)
-		cprint("\t[*] Checking Parameter: " + "'" + sql_errors[7] + "'", 'yellow')
+		cprint("\t[*] Checking Parameter: " + "'" + sql_errors_list[7] + "'", 'yellow')
 		break
 
+	for error in sql_errors:
 
-	if vuln in target:
-		time.sleep(2)
-		cprint("\n\t[+] Target is Vulnerable To SQL Injection! ", 'magenta')
-		return True
+		if error in source or vuln in target:
+			time.sleep(2)
+			cprint("\n\t[+] Target is Vulnerable to SQL Injection! ", 'magenta')
+			return True
 
-	elif vuln not in target:
-		cprint("\n\t[-] Target is Not Vulnerable to SQL", 'red')
-		return False
+		elif vuln not in target and error not in source:
+			cprint("\n\t[-] Target is Not Vulnerable to SQL", 'red')
+			return False
 		
 def Options():
 
