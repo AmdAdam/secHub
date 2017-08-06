@@ -6,7 +6,7 @@ Hackers, and Security Researchers. This tool was developed by Josh,
 (Yeh, just Josh).
 
 	This peice of Software is meant to be used for educational purposes only.
-SecHub is simply ethical and should be used simply good, not for bad. The Developer
+SecHub is simply ethical and should be used simply for good, not for bad. The Developer
 of this product is not to be held responsible for misuse of this tool.
 
 	Finally, SecHub is in it's early stages of development, so please report 
