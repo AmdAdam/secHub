@@ -6,7 +6,7 @@ Hackers, and Security Researchers. This tool was developed by Josh,
 (Yeh, just Josh).
 
 	This peice of Software is meant to be used for educational purposes only.
-SecHub is simply ethical and should be used simply for good, not for bad. The Developer
+SecHub is simply ethical and should be used simply good, not for bad. The Developer
 of this product is not to be held responsible for misuse of this tool.
 
 	Finally, SecHub is in it's early stages of development, so please report 
@@ -106,6 +106,48 @@ time.sleep(1)
 
 devices = set
 
+def DiscoverLiveHosts():
+	os.system('clear') 
+	s = socket.socket(socket.AF_PACKET, socket.SOCK_DGRAM) 
+	FORMAT_STRING = colored('\n\t<IP ADDRESS>\t\t  <MAC ADDRESS>', 'cyan') 
+	live_hosts = []
+	NET_ID = str(raw_input("\tNET ID(EXAMPLE -> 192.168.0.*)> "))
+	
+	ENTER_ON_PRESS = ''
+	if NET_ID == ENTER_ON_PRESS or NET_ID == None:
+		cprint
+		return
+
+	else:
+		try:
+			cprint('\t[*] Starting Scan...', 'yellow')
+			time.sleep(0.5) 
+
+			ARP_AS_1, UNANS = arping(NET_ID, verbose=False)
+			cprint('\t[!] Gathering Results...', 'green')
+			time.sleep(1)
+		
+			cprint('\n\t[#] Live Hosts...') 
+			print FORMAT_STRING
+			for x in ARP_AS_1:
+				print '\t' + x[0].pdst + '\t\t'+ x[1].src
+				if x[1] not in live_hosts:
+					live_hosts.append(x[0].pdst)
+
+			print "\n\t%s hosts up...."%len(live_hosts)
+
+		except socket.gaierror as w:
+			cprint(str(w), 'red')
+
+		except KeyboardInterrupt:
+			cprint("\n\t[-] User Aborted!", 'red')
+			sys.exit(0) 
+
+		except:
+			pass	
+
+
+
 def PacketHandler(pkt):
 	
 	if pkt.haslayer(Dot11):
@@ -175,7 +217,7 @@ def send_commands(conn):
 
 			enter_key_on_press = ""
 
-			if enter_key_on_press in command:
+			if None in command or enter_key_on_press in command:
 				return send_commands(conn)
 
 			if len(str.encode(command)) > 0:
@@ -534,7 +576,7 @@ def Options():
 
 	cprint("\t1: Listener and Backdoor\n\t2: Scan Network With Nmap\n\t3: Website/IP Stresser\n\t"
 		"4: MD5 Hashing\n\t5: Gmail BruteForce\n\t6: Port Scanner\n\t7: Website Admin Panel Finder\n\t8: SQL Scanner\n\t"
-		"9: Discover WIFI Devices\n\t10: Exit" , 'blue')
+		"9: Discover WIFI Devices\n\t10: Scan Devices On Network" , 'blue')
 
 
 	
@@ -631,7 +673,7 @@ def main():
 
 
 	elif start_script_input == '10':
-		sys.exit(0) 
+		DiscoverLiveHosts() 
 
 
 if __name__ == "__main__":
